@@ -30,6 +30,8 @@ module load intelmpi/2018
 BASE_DIR=$HOME/kkats/flurm/aris
 
 export SPACK_PYTHON="$(dirname "$(dirname "$(which python)")")"
+export SPACK_USER_CACHE_PATH=$BASE_DIR/opt/.spack
+export SPACK_USER_CONFIG_PATH=$BASE_DIR/opt/.spack
 
 . $BASE_DIR/opt/spack/share/spack/setup-env.sh
 
@@ -69,13 +71,14 @@ RANKLIST="0-$NNODES"
 RL1="1-$half"
 RL2="$(( half + 1))-$NNODES"
 
-if [ "$half" -eq "1" ]; then
+if (( half == 1 )); then
   RL1="1"
 fi
 
-if [ "$(( half + 1))" -eq "$n" ]; then
-  RL2="$n"
+if (( half + 1 == NNODES )); then
+  RL2="$NNODES"
 fi
+
 
 echo "Compute Rlist: $COMPUTE_RLIST"
 
@@ -100,5 +103,5 @@ sed -e "s|NODEFILE|${nodefile}|g" $BASE_DIR/conf.d/flux-config.queues.toml > "$B
 cp $BASE_DIR/conf.d/plugins/cli/* $BASE_DIR/conf.d/$nodefile/plugins/cli/
 
 FLUX_DISABLE_JOB_CLEANUP=1 FLUX_CLI_PLUGINPATH=$BASE_DIR/conf.d/$nodefile/plugins/cli LD_PRELOAD=$BASE_DIR/opt/flux_helpers/redirect_random.so \
-    srun -N $SLURM_JOB_NUM_NODES -n $SLURM_JOB_NUM_NODES --mpi=pmi2 --export=ALL flux start -o --config-path=$BASE_DIR/conf.d/$nodefile/flux-config.toml \ 
-    flux run --requires="-hosts:${CONTROL_NODE}" -n $NTASKS --cosched $BASE_DIR/scripts/examples/mpi_hello					  
+    srun -N $SLURM_JOB_NUM_NODES -n $SLURM_JOB_NUM_NODES --mpi=pmi2 --export=ALL flux start -o --config-path=$BASE_DIR/conf.d/$nodefile/flux-config.toml \
+    bash -c "flux queue start -a && flux run --requires=\"-hosts:${CONTROL_NODE}\" -n $NTASKS --cosched $BASE_DIR/scripts/examples/mpi_hello"
