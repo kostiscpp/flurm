@@ -17,8 +17,12 @@ Slurm acts as the total resource allocator, while Flux runs as the inner resourc
   - `jgf_gen.py` → Script to generate a JSON Graph Format (JGF) resource description for Flux.
 
 - **`conf.d/`**
-  - `flux-config.toml` -> Example Flux configuration file for ARIS.
+  - `flux-config.toml` -> Template Flux configuration file for ARIS.
+  - `flux-config.queues.toml` -> Template Flux configuration file defining 2 queues: normal and cosched.
   - `R.template` -> The template for a R file for ARIS. `TEMPLATE_RANKLIST` and `TEMPLATE_HOSTLIST` should be replaced with the actual ranklist and hostlist.
+  - `R.queues.template` -> The template for a R file for ARIS for the 2 queues setup. Except for the ranklist and hostlist,
+     the `TEMPLATE_PROPERTIES` placeholder should also be replaced with the properties defining the normal and cosched queues. It essentially defines partitions according to the properties assigned to each node.
+  - `plugins/cli/` -> CLI plugins for Flux (e.g., `alloc_type.py`, `cosched.py`).
 
 ---
 
